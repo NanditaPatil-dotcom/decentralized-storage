@@ -4,44 +4,29 @@ export async function POST(req: Request) {
   try {
     const form = await req.formData()
     const file = form.get("file")
+    const userJwt = form.get("jwt")
     if (!file || !(file instanceof File)) {
       return NextResponse.json({ message: "Missing file" }, { status: 400 })
     }
-
-    // Get Pinata credentials from environment
-    const apiKey = process.env.PINATA_API_KEY
-    const apiSecret = process.env.PINATA_API_SECRET
-    const jwt = process.env.PINATA_JWT
-
-    if (!apiKey || !apiSecret) {
-      return NextResponse.json({
-        message: "Pinata API credentials not configured. Please set PINATA_API_KEY and PINATA_API_SECRET in your .env file."
-      }, { status: 500 })
+    if (!userJwt || typeof userJwt !== "string") {
+      return NextResponse.json({ message: "Missing JWT token" }, { status: 400 })
     }
 
-    // Upload to Pinata using JWT (recommended) or API key/secret
+    // Basic JWT format validation
+    if (!userJwt.startsWith("eyJ")) {
+      return NextResponse.json({ message: "Invalid JWT format" }, { status: 400 })
+    }
+
+    // Upload to Pinata using user's JWT
     const uploadForm = new FormData()
     uploadForm.append("file", file, (file as File).name)
 
-    let authHeader = ""
-    let endpoint = "https://api.pinata.cloud/pinning/pinFileToIPFS"
+    console.log('Uploading to Pinata with user JWT...')
 
-    if (jwt) {
-      // Use JWT authentication (recommended)
-      authHeader = `Bearer ${jwt}`
-      endpoint = "https://api.pinata.cloud/pinning/pinFileToIPFS"
-    } else {
-      // Fallback to API key/secret (deprecated but still works)
-      authHeader = `Basic ${Buffer.from(`${apiKey}:${apiSecret}`).toString('base64')}`
-      endpoint = "https://api.pinata.cloud/pinning/pinFileToIPFS"
-    }
-
-    console.log('Uploading to Pinata...', { hasJwt: !!jwt, hasApiKey: !!apiKey })
-
-    const res = await fetch(endpoint, {
+    const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
       method: "POST",
       headers: {
-        Authorization: authHeader,
+        Authorization: `Bearer ${userJwt}`
       },
       body: uploadForm,
     })
@@ -52,7 +37,7 @@ export async function POST(req: Request) {
 
       if (res.status === 401) {
         return NextResponse.json({
-          message: "Pinata authentication failed. Please check your API credentials in the .env file.",
+          message: "Pinata authentication failed. Please check your JWT token.",
           details: errorText
         }, { status: 401 })
       }

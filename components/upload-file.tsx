@@ -8,6 +8,8 @@ import { useToast } from "@/hooks/use-toast"
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "@/lib/contract"
 import { ethers } from "ethers"
 
+import { PinataKeyInput } from "@/components/pinata-key-input"
+
 declare global {
   interface Window {
     ethereum?: any
@@ -22,6 +24,8 @@ export function UploadFile({ userAddress }: Props) {
   const [file, setFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [txPending, setTxPending] = useState(false)
+  const [cid, setCid] = useState<string | null>(null)
+  const [showPinataInput, setShowPinataInput] = useState(false)
   const { toast } = useToast()
 
   async function handleUpload() {
@@ -33,10 +37,21 @@ export function UploadFile({ userAddress }: Props) {
       toast({ title: "No file selected", variant: "destructive" })
       return
     }
+
+    // Get user's JWT from localStorage
+    const userJwt = localStorage.getItem("pinata-jwt")
+    if (!userJwt) {
+      setShowPinataInput(true)
+      toast({ title: "Pinata JWT required", description: "Please enter your Pinata JWT token first", variant: "destructive" })
+      return
+    }
+
     try {
       setUploading(true)
       const form = new FormData()
       form.append("file", file)
+      form.append("jwt", userJwt)
+      
       const res = await fetch("/api/upload", {
         method: "POST",
         body: form,
@@ -46,8 +61,9 @@ export function UploadFile({ userAddress }: Props) {
         throw new Error(err?.message || "Upload failed")
       }
       const data = (await res.json()) as { cid: string }
-      const cid = data.cid
-      toast({ title: "Uploaded to IPFS", description: cid })
+      const fileCid = data.cid
+      setCid(fileCid)
+      toast({ title: "Uploaded to IPFS", description: fileCid })
 
       if (!window.ethereum) {
         throw new Error("MetaMask not available")
@@ -59,7 +75,7 @@ export function UploadFile({ userAddress }: Props) {
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer)
-      const tx = await contract.uploadFile(cid)
+      const tx = await contract.uploadFile(fileCid)
       await tx.wait()
       toast({ title: "Saved on-chain", description: `CID stored for ${userAddress}` })
     } catch (err: any) {
@@ -72,21 +88,58 @@ export function UploadFile({ userAddress }: Props) {
 
   return (
     <div className="grid gap-4">
-      <div className="grid gap-2">
-        <Label htmlFor="file">Choose a file</Label>
-        <Input
-          id="file"
-          type="file"
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
-          disabled={uploading || txPending}
-        />
-      </div>
-      <Button onClick={handleUpload} disabled={!file || uploading || txPending}>
-        {uploading ? "Uploading to IPFS…" : txPending ? "Saving to blockchain…" : "Upload & Save"}
-      </Button>
-      <p className="text-xs text-muted-foreground">
-        Files are uploaded to IPFS via Pinata. The returned CID is written to the smart contract for your address.
-      </p>
+      {!showPinataInput ? (
+        <>
+          <div className="grid gap-2">
+            <Label htmlFor="file">Choose a file</Label>
+            <Input
+              id="file"
+              type="file"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              disabled={uploading || txPending}
+            />
+          </div>
+          <Button onClick={handleUpload} disabled={!file || uploading || txPending}>
+            {uploading ? "Uploading to IPFS…" : txPending ? "Saving to blockchain…" : "Upload & Save"}
+          </Button>
+          <div className="flex gap-2 items-center">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowPinataInput(true)}
+            >
+              Configure Pinata JWT
+            </Button>
+            <span className="text-xs text-muted-foreground">
+              {localStorage.getItem("pinata-jwt") ? "JWT configured" : "JWT not configured"}
+            </span>
+          </div>
+          {cid && (
+            <div className="p-3 bg-muted rounded-md">
+              <p className="text-sm font-medium mb-2">File uploaded successfully!</p>
+              <p className="text-xs text-muted-foreground mb-1">CID: {cid}</p>
+              <a
+                href={`https://gateway.pinata.cloud/ipfs/${cid}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-blue-500 hover:underline"
+              >
+                View on IPFS Gateway
+              </a>
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Files are uploaded to IPFS via your Pinata account. The returned CID is written to the smart contract for your address.
+          </p>
+        </>
+      ) : (
+        <div className="space-y-4">
+          <PinataKeyInput />
+          <Button onClick={() => setShowPinataInput(false)} variant="outline">
+            Back to Upload
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
