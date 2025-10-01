@@ -49,7 +49,6 @@ export function PinataKeyInput() {
   return (
     <div className="grid gap-4">
       <div className="grid gap-2">
-        <Label htmlFor="pinata-jwt">Pinata JWT Token</Label>
         <Input
           id="pinata-jwt"
           type="password"
@@ -57,8 +56,8 @@ export function PinataKeyInput() {
           value={jwt}
           onChange={(e) => setJwt(e.target.value)}
         />
-        <p className="text-xs text-muted-foreground">
-          Your JWT is encrypted and stored securely on this device.
+        <p className="text-xs text-muted-foreground line-clamp-2">
+          Your JWT is encrypted and secured.
           Get your JWT from{" "}
           <a
             href="https://app.pinata.cloud/developers/api-keys"
@@ -71,7 +70,7 @@ export function PinataKeyInput() {
         </p>
       </div>
       <div className="flex gap-2">
-        <Button onClick={handleSave} disabled={!jwt.trim()}>
+        <Button onClick={handleSave} disabled={!jwt.trim()} className="p-4 bg-white border rounded-lg text-sm text-black text-center font-medium">
           {saved ? "Update JWT" : "Save JWT"}
         </Button>
         {saved && (

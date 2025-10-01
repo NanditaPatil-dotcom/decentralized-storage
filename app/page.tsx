@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { WalletConnect } from "@/components/wallet-connect"
 import { PinataKeyInput } from "@/components/pinata-key-input"
 import { useToast } from "@/hooks/use-toast"
+import PixelBlast from "@/components/PixelBlast"
 import { hasEncryptedJWT } from "@/lib/jwt-crypto"
 
 export default function HomePage() {
@@ -83,135 +84,152 @@ export default function HomePage() {
 
   if (isAuthenticated) {
     return (
-      <main className="min-h-dvh bg-background text-foreground flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+      <main className="w-full h-full bg-background text-foreground relative overflow-hidden">
+        {/* Animated Background - Full Screen */}
+        <div className="fixed inset-0 w-full h-full z-0">
+          <PixelBlast
+            variant="circle"
+            pixelSize={6}
+            color="#B19EEF"
+            patternScale={3}
+            patternDensity={1.2}
+            pixelSizeJitter={0.5}
+            enableRipples
+            rippleSpeed={0.4}
+            rippleThickness={0.12}
+            rippleIntensityScale={1.5}
+            liquid
+            liquidStrength={0.12}
+            liquidRadius={1.2}
+            liquidWobbleSpeed={5}
+            speed={0.6}
+            edgeFade={0.25}
+            transparent={false}
+          />
+        </div>
+
+        {/* Content Overlay */}
+        <div className="relative z-10 min-h-dvh flex items-center justify-center">
+          <Card className="w-full max-w-lg backdrop-blur-xl bg-white/10 border-white/20 shadow-2xl">
+            <CardContent className="pt-8 pb-8">
+              <div className="text-center space-y-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h2 className="text-3xl font-bold text-white">Accepted</h2>
+                <p className="text-white/80 text-lg">
+                Redirecting to the dashboard!
+                </p>
               </div>
-              <h2 className="text-2xl font-bold text-green-600">Access Granted!</h2>
-              <p className="text-muted-foreground">
-                Redirecting to your dashboard...
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </main>
     )
   }
 
   return (
-    <main className="min-h-dvh bg-background text-foreground">
-      {/* Header */}
-      <header className="w-full border-b">
-        <div className="container mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-center">Decentralized File Storage</h1>
-          <p className="text-center text-muted-foreground mt-2">
-            Securely upload files to IPFS using your own Pinata account
-          </p>
-        </div>
-      </header>
+    <main className="w-full h-full bg-background text-foreground relative overflow-hidden">
+      {/* Animated Background - Full Screen */}
+      <div className="fixed inset-0 w-full h-full z-0">
+        <PixelBlast
+          variant="circle"
+          pixelSize={6}
+          color="#B19EEF"
+          patternScale={3}
+          patternDensity={1.2}
+          pixelSizeJitter={0.5}
+          enableRipples
+          rippleSpeed={0.4}
+          rippleThickness={0.12}
+          rippleIntensityScale={1.5}
+          liquid
+          liquidStrength={0.12}
+          liquidRadius={1.2}
+          liquidWobbleSpeed={5}
+          speed={0.6}
+          edgeFade={0.25}
+          transparent={false}
+        />
+      </div>
 
       {/* Main Content */}
-      <section className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[60vh]">
-        <Card className="w-full max-w-lg">
-          <CardHeader>
-            <CardTitle className="text-center">Welcome to Decentralized Storage</CardTitle>
-            <p className="text-center text-muted-foreground">
-              Connect your wallet and configure your Pinata JWT to get started
-            </p>
-          </CardHeader>
-          <CardContent className="space-y-6">
+      <section className="w-full flex justify-between items-center min-h-[60vh] px-8 py-12">
+        {/* Left Side - Title */}
+        <div className="flex-1 max-w-2xl pr-8 mt-12">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight drop-shadow-lg ml-10">
+            Get your<br />
+            decentralized data<br />
+            storage today!
+          </h1>
+        </div>
+
+        {/* Right Side - Main Card */}
+        <div className="flex-1 max-w-xl flex justify-center mr-25 mt-12">
+           <Card className="w-[550px] h-[530px] backdrop-blur-xl bg-white/10 border-white/20 shadow-2xl mt-12">
+            <CardContent className="space-y-8">
             {/* Wallet Connection */}
-            <div className="space-y-4">
               <div className="text-center">
-                <h3 className="font-semibold mb-2">Step 1: Connect Your Wallet</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Connect your MetaMask wallet to interact with the blockchain
-                </p>
-              </div>
+                <h3 className="font-bold text-xl text-white mb-3 flex items-center justify-center gap-2 mt-8">
+                  Connect Your MetaMask Wallet
+                </h3>
 
               {address ? (
-                <div className="p-3 bg-green-50 border border-green-200 rounded-md">
-                  <p className="text-sm text-green-800 text-center">
-                    ✅ Wallet Connected: {address.slice(0, 6)}...{address.slice(-4)}
+                <div className="p-4 bg-white border rounded-lg">
+                  <p className="text-sm text-black text-center font-medium">
+                    Wallet Connected
                   </p>
                 </div>
               ) : (
-                <WalletConnect
-                  onConnected={handleWalletConnected}
-                  onDisconnected={() => {
-                    setAddress(null)
-                    setShowJWTInput(false)
-                  }}
-                />
+                <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-lg p-4">
+                  <WalletConnect
+                    onConnected={handleWalletConnected}
+                    onDisconnected={() => {
+                      setAddress(null)
+                      setShowJWTInput(false)
+                    }}
+                  />
+                </div>
               )}
             </div>
-
-            {/* JWT Configuration */}
-            {address && (
-              <div className="space-y-4">
+             {/* JWT Configuration */}
+             {address && (
                 <div className="text-center">
-                  <h3 className="font-semibold mb-2">Step 2: Configure Pinata JWT</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Enter your Pinata JWT token to upload files to IPFS
-                  </p>
-                </div>
+                  <h3 className="font-bold text-xl text-white mb-3 flex items-center justify-center gap-2">
+                    Configure Pinata JWT
+                  </h3>
 
                 {jwtConfigured ? (
-                  <div className="p-3 bg-green-50 border border-green-200 rounded-md">
-                    <p className="text-sm text-green-800 text-center">
-                      ✅ Pinata JWT Configured
+                  <div className="p-4 bg-white border border-blue-300 rounded-lg">
+                    <p className="text-sm text-black text-center font-medium">
+                      Pinata JWT Configured
                     </p>
                   </div>
                 ) : (
-                  <PinataKeyInput />
+                    <PinataKeyInput />
                 )}
               </div>
             )}
 
             {/* Enter Site Button */}
             {address && (
-              <div className="pt-4 border-t">
+              <div className="pt-6 border-t border-white/10">
                 <Button
                   onClick={handleEnterSite}
-                  className="w-full"
+                  className="w-full bg-white hover:bg-gray-100 text-black font-bold py-4 px-8 rounded-xl text-lg shadow-lg border-2"
                   size="lg"
                   disabled={!jwtConfigured}
                 >
-                  {jwtConfigured ? "Enter Dashboard" : "Configure JWT First"}
+                  {jwtConfigured ? "Entering the dashboard" : "Configure"}
                 </Button>
-                {jwtConfigured && (
-                  <p className="text-xs text-muted-foreground text-center mt-2">
-                    Ready to upload files to IPFS and save to blockchain
-                  </p>
-                )}
               </div>
             )}
 
-            {/* Information */}
-            <div className="pt-4 border-t space-y-2">
-              <div className="text-sm space-y-1">
-                <p className="font-medium">What you need:</p>
-                <ul className="text-muted-foreground space-y-1 text-xs">
-                  <li>• MetaMask wallet connected to Polygon Amoy</li>
-                  <li>• Pinata account with JWT token</li>
-                  <li>• POL tokens for gas fees</li>
-                </ul>
-              </div>
-
-              <div className="text-xs text-muted-foreground">
-                <p>
-                  <strong>Privacy:</strong> Your JWT is encrypted locally and never stored on our servers.
-                  Files are uploaded to your Pinata account, not ours.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </section>
     </main>
   )
