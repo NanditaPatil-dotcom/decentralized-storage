@@ -5,22 +5,20 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
+import { useJWTEncryption, hasEncryptedJWT as checkEncryptedJWT } from "@/lib/jwt-crypto"
 
 export function PinataKeyInput() {
   const [jwt, setJwt] = useState("")
   const [saved, setSaved] = useState(false)
   const { toast } = useToast()
+  const { encryptAndSaveJWT, clearJWTStorage } = useJWTEncryption()
 
-  // Load saved JWT from localStorage on component mount
+  // Check if encrypted JWT exists on component mount
   useEffect(() => {
-    const savedJwt = localStorage.getItem("pinata-jwt")
-    if (savedJwt) {
-      setJwt(savedJwt)
-      setSaved(true)
-    }
+    setSaved(checkEncryptedJWT())
   }, [])
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!jwt.trim()) {
       toast({ title: "Please enter a valid JWT token", variant: "destructive" })
       return
@@ -32,16 +30,20 @@ export function PinataKeyInput() {
       return
     }
 
-    localStorage.setItem("pinata-jwt", jwt)
-    setSaved(true)
-    toast({ title: "JWT saved successfully", description: "Your Pinata JWT has been saved locally" })
+    // Generate a random passphrase internally
+    const internalPassphrase = crypto.randomUUID()
+    
+    const success = await encryptAndSaveJWT(jwt, internalPassphrase)
+    if (success) {
+      setJwt("") // Clear JWT from memory
+      setSaved(true) // Update state to reflect successful save
+    }
   }
 
   const handleClear = () => {
-    localStorage.removeItem("pinata-jwt")
-    setJwt("")
+    clearJWTStorage()
     setSaved(false)
-    toast({ title: "JWT cleared", description: "Your saved JWT has been removed" })
+    toast({ title: "JWT cleared", description: "Your encrypted JWT has been removed" })
   }
 
   return (
@@ -56,7 +58,7 @@ export function PinataKeyInput() {
           onChange={(e) => setJwt(e.target.value)}
         />
         <p className="text-xs text-muted-foreground">
-          Your JWT is stored locally in your browser and never sent to our servers.
+          Your JWT is encrypted and stored securely on this device.
           Get your JWT from{" "}
           <a
             href="https://app.pinata.cloud/developers/api-keys"

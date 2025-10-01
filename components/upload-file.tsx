@@ -7,8 +7,7 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "@/lib/contract"
 import { ethers } from "ethers"
-
-import { PinataKeyInput } from "@/components/pinata-key-input"
+import { hasEncryptedJWT } from "@/lib/jwt-crypto"
 
 declare global {
   interface Window {
@@ -25,7 +24,6 @@ export function UploadFile({ userAddress }: Props) {
   const [uploading, setUploading] = useState(false)
   const [txPending, setTxPending] = useState(false)
   const [cid, setCid] = useState<string | null>(null)
-  const [showPinataInput, setShowPinataInput] = useState(false)
   const { toast } = useToast()
 
   async function handleUpload() {
@@ -88,58 +86,35 @@ export function UploadFile({ userAddress }: Props) {
 
   return (
     <div className="grid gap-4">
-      {!showPinataInput ? (
-        <>
-          <div className="grid gap-2">
-            <Label htmlFor="file">Choose a file</Label>
-            <Input
-              id="file"
-              type="file"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-              disabled={uploading || txPending}
-            />
-          </div>
-          <Button onClick={handleUpload} disabled={!file || uploading || txPending}>
-            {uploading ? "Uploading to IPFS…" : txPending ? "Saving to blockchain…" : "Upload & Save"}
-          </Button>
-          <div className="flex gap-2 items-center">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowPinataInput(true)}
-            >
-              Configure Pinata JWT
-            </Button>
-            <span className="text-xs text-muted-foreground">
-              {localStorage.getItem("pinata-jwt") ? "JWT configured" : "JWT not configured"}
-            </span>
-          </div>
-          {cid && (
-            <div className="p-3 bg-muted rounded-md">
-              <p className="text-sm font-medium mb-2">File uploaded successfully!</p>
-              <p className="text-xs text-muted-foreground mb-1">CID: {cid}</p>
-              <a
-                href={`https://gateway.pinata.cloud/ipfs/${cid}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-blue-500 hover:underline"
-              >
-                View on IPFS Gateway
-              </a>
-            </div>
-          )}
-          <p className="text-xs text-muted-foreground">
-            Files are uploaded to IPFS via your Pinata account. The returned CID is written to the smart contract for your address.
-          </p>
-        </>
-      ) : (
-        <div className="space-y-4">
-          <PinataKeyInput />
-          <Button onClick={() => setShowPinataInput(false)} variant="outline">
-            Back to Upload
-          </Button>
+      <div className="grid gap-2">
+        <Label htmlFor="file">Choose a file</Label>
+        <Input
+          id="file"
+          type="file"
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+          disabled={uploading || txPending}
+        />
+      </div>
+      <Button onClick={handleUpload} disabled={!file || uploading || txPending}>
+        {uploading ? "Uploading to IPFS…" : txPending ? "Saving to blockchain…" : "Upload & Save"}
+      </Button>
+      {cid && (
+        <div className="p-3 bg-muted rounded-md">
+          <p className="text-sm font-medium mb-2">File uploaded successfully!</p>
+          <p className="text-xs text-muted-foreground mb-1">CID: {cid}</p>
+          <a
+            href={`https://gateway.pinata.cloud/ipfs/${cid}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-blue-500 hover:underline"
+          >
+            View on IPFS Gateway
+          </a>
         </div>
       )}
+      <p className="text-xs text-muted-foreground">
+        Files are uploaded to IPFS via your Pinata account. The returned CID is written to the smart contract for your address.
+      </p>
     </div>
   )
 }
