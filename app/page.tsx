@@ -1,85 +1,28 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { WalletConnect } from "@/components/wallet-connect"
-import { PinataKeyInput } from "@/components/pinata-key-input"
 import { useToast } from "@/hooks/use-toast"
 import PixelBlast from "@/components/PixelBlast"
-import { hasEncryptedJWT } from "@/lib/jwt-crypto"
 
 export default function HomePage() {
   const [address, setAddress] = useState<string | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [showJWTInput, setShowJWTInput] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
-
-  const [jwtConfigured, setJwtConfigured] = useState(false)
-
-  // Listen for JWT configuration changes
-  useEffect(() => {
-    const checkJWT = () => {
-      const hasJWT = hasEncryptedJWT()
-      setJwtConfigured(hasJWT)
-    }
-
-    // Check immediately
-    checkJWT()
-
-    // Set up interval to check for changes (since PinataKeyInput saves to localStorage)
-    const interval = setInterval(checkJWT, 500)
-
-    return () => clearInterval(interval)
-  }, [])
 
   const handleWalletConnected = (addr: string) => {
     setAddress(addr)
     localStorage.setItem('user-address', addr) // Store for dashboard access
     toast({ title: "Wallet connected", description: addr })
 
-    // Check if JWT is also configured
-    if (hasEncryptedJWT()) {
-      setIsAuthenticated(true)
-      setTimeout(() => {
-        router.push("/dashboard")
-      }, 1500)
-    } else {
-      setShowJWTInput(true)
-    }
-  }
-
-  const handleJWTConfigured = () => {
-    setJwtConfigured(true)
-    if (address) {
-      setIsAuthenticated(true)
-      setTimeout(() => {
-        router.push("/dashboard")
-      }, 1500)
-    }
-  }
-
-  const handleEnterSite = () => {
-    if (address && jwtConfigured) {
-      setIsAuthenticated(true)
+    // Redirect to dashboard immediately after wallet connection
+    setIsAuthenticated(true)
+    setTimeout(() => {
       router.push("/dashboard")
-    } else if (!address) {
-      toast({
-        title: "Wallet required",
-        description: "Please connect your MetaMask wallet first",
-        variant: "destructive"
-      })
-    } else if (!jwtConfigured) {
-      toast({
-        title: "JWT required",
-        description: "Please configure your Pinata JWT token first",
-        variant: "destructive"
-      })
-    }
+    }, 1500)
   }
 
   if (isAuthenticated) {
@@ -188,45 +131,11 @@ export default function HomePage() {
                     onConnected={handleWalletConnected}
                     onDisconnected={() => {
                       setAddress(null)
-                      setShowJWTInput(false)
                     }}
                   />
                 </div>
               )}
             </div>
-             {/* JWT Configuration */}
-             {address && (
-                <div className="text-center">
-                  <h3 className="font-bold text-xl text-white mb-3 flex items-center justify-center gap-2">
-                    Configure Pinata JWT
-                  </h3>
-
-                {jwtConfigured ? (
-                  <div className="p-4 bg-white border border-blue-300 rounded-lg">
-                    <p className="text-sm text-black text-center font-medium">
-                      Pinata JWT Configured
-                    </p>
-                  </div>
-                ) : (
-                    <PinataKeyInput />
-                )}
-              </div>
-            )}
-
-            {/* Enter Site Button */}
-            {address && (
-              <div className="pt-6 border-t border-white/10">
-                <Button
-                  onClick={handleEnterSite}
-                  className="w-full bg-white hover:bg-gray-100 text-black font-bold py-4 px-8 rounded-xl text-lg shadow-lg border-2"
-                  size="lg"
-                  disabled={!jwtConfigured}
-                >
-                  {jwtConfigured ? "Entering the dashboard" : "Configure"}
-                </Button>
-              </div>
-            )}
-
             </CardContent>
           </Card>
         </div>

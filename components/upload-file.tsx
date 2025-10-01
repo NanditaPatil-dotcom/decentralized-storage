@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast"
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "@/lib/contract"
 import { ethers } from "ethers"
 import { hasEncryptedJWT } from "@/lib/jwt-crypto"
+import { PinataKeyInput } from "@/components/pinata-key-input"
 
 declare global {
   interface Window {
@@ -24,7 +25,27 @@ export function UploadFile({ userAddress }: Props) {
   const [uploading, setUploading] = useState(false)
   const [txPending, setTxPending] = useState(false)
   const [cid, setCid] = useState<string | null>(null)
+  const [jwtConfigured, setJwtConfigured] = useState(false)
   const { toast } = useToast()
+
+  // Auto-upload when both file and JWT are ready
+  useEffect(() => {
+    if (file && jwtConfigured && !uploading && !txPending && !cid) {
+      // Automatically trigger upload when both file and JWT are configured
+      handleUpload()
+    }
+  }, [file, jwtConfigured, uploading, txPending, cid])
+
+  // Monitor JWT configuration status
+  useEffect(() => {
+    const checkJWT = () => {
+      setJwtConfigured(hasEncryptedJWT())
+    }
+
+    checkJWT()
+    const interval = setInterval(checkJWT, 1000) // Check every second
+    return () => clearInterval(interval)
+  }, [])
 
   async function handleUpload() {
     if (!userAddress) {
@@ -38,9 +59,8 @@ export function UploadFile({ userAddress }: Props) {
 
     // Get user's JWT from localStorage
     const userJwt = localStorage.getItem("pinata-jwt")
-    if (!userJwt) {
-      setShowPinataInput(true)
-      toast({ title: "Pinata JWT required", description: "Please enter your Pinata JWT token first", variant: "destructive" })
+    if (!userJwt || !jwtConfigured) {
+      toast({ title: "Pinata JWT required", description: "Please configure your Pinata JWT token first", variant: "destructive" })
       return
     }
 
@@ -95,8 +115,14 @@ export function UploadFile({ userAddress }: Props) {
           disabled={uploading || txPending}
         />
       </div>
-      <Button onClick={handleUpload} disabled={!file || uploading || txPending}>
-        {uploading ? "Uploading to IPFS…" : txPending ? "Saving to blockchain…" : "Upload & Save"}
+
+      <div className="space-y-4 p-4 bg-muted rounded-lg">
+        <h3 className="font-semibold text-sm">Configure Pinata JWT</h3>
+        <PinataKeyInput />
+      </div>
+
+      <Button onClick={handleUpload} disabled={!file || uploading || txPending || !jwtConfigured}>
+        {uploading ? "Uploading to IPFS…" : txPending ? "Saving to blockchain…" : jwtConfigured ? "Upload to Pinata" : "Configure JWT First"}
       </Button>
       {cid && (
         <div className="p-3 bg-muted rounded-md">
@@ -113,7 +139,7 @@ export function UploadFile({ userAddress }: Props) {
         </div>
       )}
       <p className="text-xs text-muted-foreground">
-        Files are uploaded to IPFS via your Pinata account. The returned CID is written to the smart contract for your address.
+        Select a file and configure your Pinata JWT. Once both are ready, click "Upload to Pinata" to upload your file directly to Pinata's storage. The returned CID will be written to the smart contract for your address.
       </p>
     </div>
   )

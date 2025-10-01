@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { UploadFile } from "@/components/upload-file"
+import { FileUpload } from "@/components/file-upload"
 import { FileList } from "@/components/file-list"
 import { useToast } from "@/hooks/use-toast"
 
@@ -72,7 +72,7 @@ export default function Page() {
             <CardTitle className="text-pretty">Upload a File to IPFS</CardTitle>
           </CardHeader>
           <CardContent>
-            <UploadFile userAddress={address} />
+            <FileUpload userAddress={address} />
           </CardContent>
         </Card>
 

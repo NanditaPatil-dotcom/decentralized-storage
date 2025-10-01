@@ -19,7 +19,7 @@ type Props = {
 async function fetchFiles(userAddress: string): Promise<string[]> {
   if (!window.ethereum) throw new Error("MetaMask not available")
   if (!CONTRACT_ADDRESS || CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
-    throw new Error("Contract address not configured")
+    throw new Error("Contract address not configured. Please set NEXT_PUBLIC_CONTRACT_ADDRESS in your .env file.")
   }
 
   try {
@@ -69,7 +69,21 @@ export function FileList({ userAddress }: Props) {
   }
 
   if (error) {
-    return <p className="text-sm text-destructive">{(error as Error).message || "Failed to load files"}</p>
+    console.error('FileList error:', error)
+    return (
+      <div className="space-y-2">
+        <p className="text-sm text-muted-foreground mb-4">
+          Files are uploaded to IPFS via Pinata. The resulting CID is saved on-chain under your address.
+        </p>
+        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+          <p className="text-sm text-yellow-800 mb-2">⚠️ Unable to load files</p>
+          <p className="text-xs text-yellow-700">{(error as Error).message}</p>
+          <p className="text-xs text-yellow-600 mt-2">
+            Make sure your contract is deployed to Polygon Amoy and NEXT_PUBLIC_CONTRACT_ADDRESS is set in .env.local
+          </p>
+        </div>
+      </div>
+    )
   }
 
   if (!data || data.length === 0) {
@@ -85,17 +99,29 @@ export function FileList({ userAddress }: Props) {
 
   return (
     <div className="grid gap-3">
-      {data.map((cid, idx) => {
+      <p className="text-sm text-muted-foreground mb-2">
+        {data.length} file{data.length !== 1 ? 's' : ''} uploaded
+      </p>
+      {data.map((cid, originalIdx) => {
+        const reversedIdx = data.length - 1 - originalIdx
         const short = cid.length > 20 ? `${cid.slice(0, 10)}...${cid.slice(-8)}` : cid
+        const isLatest = reversedIdx === data.length - 1 // Last item in original array is latest
         return (
-          <div key={cid + idx} className="flex items-center justify-between rounded-md border p-3">
+          <div key={cid + originalIdx} className="flex items-center justify-between rounded-md border p-3">
             <div className="text-sm">
-              <div className="font-medium">{short}</div>
+              <div className="flex items-center gap-2">
+                <div className="font-medium">{short}</div>
+                {isLatest && (
+                  <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
+                    Latest
+                  </span>
+                )}
+              </div>
               <div className="text-xs text-muted-foreground break-all">{cid}</div>
             </div>
             <div className="flex items-center gap-2">
               <Button asChild size="sm" variant="secondary">
-                <a href={`https://ipfs.io/ipfs/${cid}`} target="_blank" rel="noreferrer">
+                <a href={`https://gateway.pinata.cloud/ipfs/${cid}`} target="_blank" rel="noreferrer">
                   View
                 </a>
               </Button>
@@ -105,7 +131,7 @@ export function FileList({ userAddress }: Props) {
             </div>
           </div>
         )
-      })}
+      }).reverse()}
     </div>
   )
 }
