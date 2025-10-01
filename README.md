@@ -14,6 +14,9 @@ A React + Next.js DApp that uploads files to IPFS via NFT.Storage and stores the
 - select polygon almoy as the testnet
 - pump the currency(POL) in the wallet for the gas
 - depending on the wallet balance, the files get uploaded
+- also, create your pinata account and add a new key
+- enter the jwt key to the website (safe and encrypted)
+- the jwt is received directly by pinata, no server involved
 
 ## codeflow:
 1.User (Browser w/ MetaMask)
