@@ -56,6 +56,49 @@ export default function HomePage() {
     }
   ]
 
+  const trailCards = [
+    {
+      title: "Embercrest Ridge",
+      subtitle: "Silverpine Mountains",
+      image:
+        "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=60",
+      difficulty: "Hard",
+      distance: "12.4km",
+      elevation: "870m",
+      duration: "4h 45m",
+    },
+    {
+      title: "Frostveil Pass",
+      subtitle: "Aether Peaks",
+      image:
+        "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=60",
+      difficulty: "Moderate",
+      distance: "8.2km",
+      elevation: "520m",
+      duration: "3h 10m",
+    },
+    {
+      title: "Starfall Valley",
+      subtitle: "Verdant Range",
+      image:
+        "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=60",
+      difficulty: "Easy",
+      distance: "5.6km",
+      elevation: "230m",
+      duration: "1h 40m",
+    },
+    {
+      title: "Duskwatch Trail",
+      subtitle: "Redstone Cliffs",
+      image:
+        "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=60",
+      difficulty: "Hard",
+      distance: "14.1km",
+      elevation: "1020m",
+      duration: "5h 05m",
+    },
+  ]
+
   if (isAuthenticated) {
     return (
       <main className="w-full h-full bg-background text-foreground relative overflow-hidden">
@@ -174,17 +217,65 @@ export default function HomePage() {
         id="next-section"
         className="relative z-10 min-h-dvh flex flex-col items-center justify-center px-8 py-12 bg-gradient-to-b from-transparent to-gray-900/20"
       >
-        <div className="text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Next Section
-          </h2>
-          <p className="text-white/80 text-lg max-w-2xl mx-auto">
-            This section is prepared for future content. The "Get Started" button in the navigation will smoothly scroll down to this area.
-          </p>
-          <div className="mt-8 p-8 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
-            <p className="text-white/60">
-              🚀 Ready for future features and content!
-            </p>
+        <div className="w-full max-w-7xl">
+          <div className="mb-8 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white">Featured Trails</h2>
+            <p className="mt-2 text-white/70">Explore hand-picked routes and their key stats.</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {trailCards.map((card) => (
+              <div
+                key={card.title}
+                className="rounded-2xl overflow-hidden bg-white/5 border border-white/10 shadow-2xl hover:shadow-[0_20px_60px_rgba(0,0,0,0.35)] transition-shadow duration-300"
+              >
+                <div className="relative aspect-[16/11]">
+                  <img
+                    src={card.image}
+                    alt={card.title}
+                    className="absolute inset-0 h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
+                    <div className="drop-shadow">
+                      <p className="text-white font-semibold text-lg leading-tight">{card.title}</p>
+                      <p className="text-white/80 text-sm">{card.subtitle}</p>
+                    </div>
+                    <button
+                      className="px-4 py-2 rounded-full bg-white/15 text-white text-sm border border-white/25 backdrop-blur-md hover:bg-white/25 transition-colors"
+                    >
+                      Directions
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-white text-sm font-medium">
+                      {card.difficulty}
+                    </div>
+                    <div className="h-12 w-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[10px] text-white/60">
+                      Map
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 text-center">
+                    <div>
+                      <div className="text-white font-semibold">{card.distance}</div>
+                      <div className="text-white/60 text-xs">Distance</div>
+                    </div>
+                    <div>
+                      <div className="text-white font-semibold">{card.elevation}</div>
+                      <div className="text-white/60 text-xs">Elevation</div>
+                    </div>
+                    <div>
+                      <div className="text-white font-semibold">{card.duration}</div>
+                      <div className="text-white/60 text-xs">Duration</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
