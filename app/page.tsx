@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { WalletConnect } from "@/components/wallet-connect"
 import { useToast } from "@/hooks/use-toast"
 import PixelBlast from "@/components/PixelBlast"
+import CardNav from "@/components/card-nav"
 
 export default function HomePage() {
   const [address, setAddress] = useState<string | null>(null)
@@ -25,6 +26,36 @@ export default function HomePage() {
     }, 1500)
   }
 
+  const navItems = [
+    {
+      label: "About",
+      bgColor: "#0D0716",
+      textColor: "#fff",
+      links: [
+        { label: "Company", href: "/about", ariaLabel: "About Company" },
+        { label: "Features", href: "/features", ariaLabel: "Our Features" }
+      ]
+    },
+    {
+      label: "Projects",
+      bgColor: "#170D27",
+      textColor: "#fff",
+      links: [
+        { label: "Featured", href: "/projects", ariaLabel: "Featured Projects" },
+        { label: "Case Studies", href: "/case-studies", ariaLabel: "Project Case Studies" }
+      ]
+    },
+    {
+      label: "Contact",
+      bgColor: "#271E37",
+      textColor: "#fff",
+      links: [
+        { label: "Email", href: "/contact", ariaLabel: "Email us" },
+        { label: "Support", href: "/support", ariaLabel: "Support" }
+      ]
+    }
+  ]
+
   if (isAuthenticated) {
     return (
       <main className="w-full h-full bg-background text-foreground relative overflow-hidden">
@@ -33,7 +64,7 @@ export default function HomePage() {
           <PixelBlast
             variant="circle"
             pixelSize={6}
-            color="#B19EEF"
+            color="#5931DD"
             patternScale={3}
             patternDensity={1.2}
             pixelSizeJitter={0.5}
@@ -80,13 +111,12 @@ export default function HomePage() {
         <PixelBlast
           variant="circle"
           pixelSize={6}
-          color="#B19EEF"
+          color="#5931DD"
           patternScale={3}
           patternDensity={1.2}
           pixelSizeJitter={0.5}
           enableRipples
           rippleSpeed={0.4}
-          rippleThickness={0.12}
           rippleIntensityScale={1.5}
           liquid
           liquidStrength={0.12}
@@ -98,48 +128,66 @@ export default function HomePage() {
         />
       </div>
 
+      {/* Card Navigation */}
+      <CardNav
+        items={navItems}
+        baseColor="#f8f9fa"
+        menuColor="#333"
+        buttonBgColor="#000"
+        buttonTextColor="#fff"
+        ease="power3.out"
+      />
+
       {/* Main Content */}
-      <section className="w-full flex justify-between items-center min-h-[60vh] px-8 py-12">
-        {/* Left Side - Title */}
-        <div className="flex-1 max-w-2xl pr-8 mt-12">
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight drop-shadow-lg ml-10">
-            Get your<br />
-            decentralized data<br />
+      <div className="relative z-10 min-h-dvh flex flex-col items-center justify-center px-8 py-12 mt-8">
+        {/* Title */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight drop-shadow-lg mb-8" style={{ fontFamily: 'sans-serif', color: 'white' }}>
+            Get your decentralized data<br />
             storage today!
           </h1>
-        </div>
 
-        {/* Right Side - Main Card */}
-        <div className="flex-1 max-w-xl flex justify-center mr-25 mt-12">
-           <Card className="w-[550px] h-[530px] backdrop-blur-xl bg-white/10 border-white/20 shadow-2xl mt-12">
-            <CardContent className="space-y-8">
-            {/* Wallet Connection */}
-              <div className="text-center">
-                <h3 className="font-bold text-xl text-white mb-3 flex items-center justify-center gap-2 mt-8">
-                  Connect Your MetaMask Wallet
-                </h3>
-
-              {address ? (
-                <div className="p-4 bg-white border rounded-lg">
-                  <p className="text-sm text-black text-center font-medium">
-                    Wallet Connected
-                  </p>
-                </div>
-              ) : (
-                <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-lg p-4">
-                  <WalletConnect
-                    onConnected={handleWalletConnected}
-                    onDisconnected={() => {
-                      setAddress(null)
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-            </CardContent>
-          </Card>
+          {/* Connect Wallet Button */}
+          <div className="flex justify-center">
+            {address ? (
+              <div className="p-4 bg-white border rounded-lg">
+                <p className="text-sm text-black text-center font-medium">
+                  Wallet Connected
+                </p>
+              </div>
+            ) : (
+              <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-lg p-4">
+                <WalletConnect
+                  onConnected={handleWalletConnected}
+                  onDisconnected={() => {
+                    setAddress(null)
+                  }}
+                />
+              </div>
+            )}
+          </div>
         </div>
-      </section>
+      </div>
+
+      {/* Next Section - For Future Use */}
+      <div
+        id="next-section"
+        className="relative z-10 min-h-dvh flex flex-col items-center justify-center px-8 py-12 bg-gradient-to-b from-transparent to-gray-900/20"
+      >
+        <div className="text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+            Next Section
+          </h2>
+          <p className="text-white/80 text-lg max-w-2xl mx-auto">
+            This section is prepared for future content. The "Get Started" button in the navigation will smoothly scroll down to this area.
+          </p>
+          <div className="mt-8 p-8 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
+            <p className="text-white/60">
+              🚀 Ready for future features and content!
+            </p>
+          </div>
+        </div>
+      </div>
     </main>
   )
 }

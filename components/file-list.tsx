@@ -72,15 +72,9 @@ export function FileList({ userAddress }: Props) {
     console.error('FileList error:', error)
     return (
       <div className="space-y-2">
-        <p className="text-sm text-muted-foreground mb-4">
-          Files are uploaded to IPFS via Pinata. The resulting CID is saved on-chain under your address.
-        </p>
         <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
           <p className="text-sm text-yellow-800 mb-2">⚠️ Unable to load files</p>
           <p className="text-xs text-yellow-700">{(error as Error).message}</p>
-          <p className="text-xs text-yellow-600 mt-2">
-            Make sure your contract is deployed to Polygon Amoy and NEXT_PUBLIC_CONTRACT_ADDRESS is set in .env.local
-          </p>
         </div>
       </div>
     )
@@ -89,9 +83,6 @@ export function FileList({ userAddress }: Props) {
   if (!data || data.length === 0) {
     return (
       <div>
-        <p className="text-sm text-muted-foreground mb-4">
-          Files are uploaded to IPFS via Pinata. The resulting CID is saved on-chain under your address.
-        </p>
         <p className="text-sm text-muted-foreground">No files yet. Upload your first file!</p>
       </div>
     )
